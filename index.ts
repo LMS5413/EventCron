@@ -73,12 +73,8 @@ export class EventCron {
               new Date().getMonth() + 1
             }/${new Date().getFullYear()}`;
             const date = {
-              start: `${parseInt(event.startIn.split("/")[0])}/${
-                event.startIn.split("/").slice(1).join("/").split(":")[0]
-              }`,
-              end: `${parseInt(event.endIn.split("/")[0])}/${
-                event.endIn.split("/").slice(1).join("/").split(":")[0]
-              }`,
+              start: `${event.endIn.split("/").map(x => parseInt(x)).join("/")}`,
+              end: `${event.endIn.split("/").map(x => parseInt(x)).join("/")}`,
               hourStart: event.startIn.split(":").slice(1).join(":"),
               hourEnd: event.endIn.split(":").slice(1).join(":"),
             };
