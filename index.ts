@@ -75,8 +75,8 @@ export class EventCron {
             const date = {
               start: `${event.endIn.split("/").map(x => parseInt(x)).join("/")}`,
               end: `${event.endIn.split("/").map(x => parseInt(x)).join("/")}`,
-              hourStart: event.startIn.split(":").slice(1).join(":"),
-              hourEnd: event.endIn.split(":").slice(1).join(":"),
+              hourStart: event.startIn.split(":").map(x => parseInt(x)).slice(1).join(":"),
+              hourEnd: event.endIn.split(":").map(x => parseInt(x)).slice(1).join(":"),
             };
             if (actualDate === date.start) {
               if (!date.hourStart) {
