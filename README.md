@@ -20,7 +20,7 @@ yarn add eventcron
 # USAGE
 
 ```js
-const cron = require('eventcron');
+const eventcron = require('eventcron');
 
 (new cron.EventCron({events: [{endIn: "01/11/2022", name: "test", startIn: "31/10/2022"}], timezone: "America/SaoPau"})).start().then(res => {
     res.on("eventEnded", (event) => {
