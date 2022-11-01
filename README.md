@@ -38,3 +38,4 @@ timezone: "Your timezone (Default value: Timezone from Server)"
 ```js
 name: string //Name of event,
 index: number //Index of array
+```
