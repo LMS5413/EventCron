@@ -18,6 +18,9 @@ export class EventCron {
           new RegexValidatorError("Invalid pattern \nLocale: Cron pattern")
         );
       }
+      if (this.options.events.find(x => !x.endIn || !x.startIn || !x.name)) {
+        reject(new RegexValidatorError("Invalid params \nLocale: Event"));
+      }
       if (
         this.options.events.find(
           (x) =>
@@ -71,18 +74,18 @@ export class EventCron {
           this.options.events.forEach((event, index) => {
             const actualDate = `${new Date().getDate()}/${
               new Date().getMonth() + 1
-            }/${new Date().getFullYear()}`;
+            }`;
             const date = {
               start: `${event.endIn.split("/").map(x => parseInt(x)).join("/")}`,
               end: `${event.endIn.split("/").map(x => parseInt(x)).join("/")}`,
               hourStart: event.startIn.split(":").map(x => parseInt(x)).slice(1).join(":"),
               hourEnd: event.endIn.split(":").map(x => parseInt(x)).slice(1).join(":"),
             };
+            const hour = `${new Date().getHours()}:${new Date().getMinutes()}`;
             if (actualDate === date.start) {
               if (!date.hourStart) {
                 emitter.emit("eventStarted", { name: event.name, index });
               } else {
-                const hour = `${new Date().getHours()}:${new Date().getMinutes()}`;
                 if (hour === date.hourStart) {
                   emitter.emit("eventStarted", { name: event.name, index });
                 }
@@ -92,7 +95,6 @@ export class EventCron {
               if (!date.hourEnd) {
                 emitter.emit("eventEnded", { name: event.name, index });
               } else {
-                const hour = `${new Date().getHours()}:${new Date().getMinutes()}`;
                 if (hour === date.hourEnd) {
                   emitter.emit("eventEnded", { name: event.name, index });
                 }
