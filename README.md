@@ -20,42 +20,21 @@ yarn add eventcron
 # USAGE
 
 ```js
-const cron = require('eventcron');
-
-(new cron.EventCron({events: [{endIn: "01/11/2022", name: "test", startIn: "31/10/2022"}], timezone: "America/SaoPau"})).start().then(res => {
-    res.on("eventEnded", (event) => {
-        console.log(`Event ${event.name} is ended with index ${events.index}`)
-    })
-    res.on("eventStarted", (event) => {
-        console.log(`Event ${event.name} is started with index ${events.index}`)
-    })
+const { EventCron } = require('eventcron');
+(async () => {
+    const eventStarter = new EventCron({events: [{name: "event1", startIn: "02/11/2022:3:05", endIn: "02/11/2022:3:06"}]})
+    const initEvent = await eventStarter.start()
 })
 ```
-
-# PARAMS
+# EventCron Class Params
 
 ```js
-{
-    events: [{
-        endIn:, //Time from event is ended Format date: DD/MM/YYYY)
-        endStarted:, //Time from event is ended Format date: DD/MM/YYYY)
-        name: //Name of events
-    }],
-    pattern:, //Node cron pattern (Default: 0 0 * * *)
-    timezone: //Timezone from locale (Opcional)
-} //Promise<EventEmitter>
+events: [{name: "Name your event", startIn: "date/hour start event (hour opcional)", endIn: "date/hour end event (hour opcional)"}],
+pattern: "pattern node cron (Default value: 0 0 * * * (Every midnight))" //ATTENCION! If propriety of event startIn or endIn includes hours change pattern to */1 * * * *
+timezone: "Your timezone (Default value: Timezone from Server)"
 ```
+# Return
 
-# EVENTS
-
-```
-"eventStarted" - If event is started (Result: {name: string, index: number}) 
-"eventEnded" - If event is ended (Result: {name: string, index: number})
-```
-
-# EVENT RETURN PROPERTIES
-
-```
-name: string - Name of event
-index: number - Index of event array.
-```
+```js
+name: string //Name of event,
+index: number //Index of array

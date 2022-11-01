@@ -7,76 +7,106 @@ import { TimezoneError } from "./Errors/TimezoneError";
 import axios from "axios";
 
 export class EventCron {
-  options: OptionsType;
+  private options: OptionsType;
   constructor(options: OptionsType) {
     this.options = options;
   }
   async start() {
-    if (this.options.pattern && !cron.validate(this.options.pattern)) {
-      throw new RegexValidatorError("Invalid pattern \nLocale: Cron pattern");
-    }
-    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-    if (
-      this.options.events.find(
-        (x) => !regex.test(x.startIn) || !regex.test(x.endIn)
-      )
-    ) {
-      throw new RegexValidatorError(
-        `Invalid pattern \nLocale: Events > ${
-          this.options.events.find((x) => !regex.test(x.startIn))
-            ? "Start In"
-            : "End In"
-        }`
-      );
-    }
-    const emitter = new EventEmitter() as Emitter;
-    if (this.options.timezone) {
-      const timezones = (
-        await axios.get(
-          "https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json"
-        )
-      ).data as any[];
-      if (!timezones.find((x) => x.value === this.options.timezone)) {
-        throw new TimezoneError(
-          "Timezone is invalid.",
-          this.options.timezone,
-          timezones
-            .map((x) => x.utc)
-            .reduce((acc, curr) => acc.concat(curr), [])
+    return new Promise<Emitter>(async (resolve, reject) => {
+      if (this.options.pattern && !cron.validate(this.options.pattern)) {
+        reject(
+          new RegexValidatorError("Invalid pattern \nLocale: Cron pattern")
         );
       }
-    }
-    let timezoneConfig = {
-      schedule: true,
-      timezone: this.options.timezone || undefined,
-    };
-    cron.schedule(
-      this.options.pattern ?? "0 0 * * *",
-      () => {
-        this.options.events.forEach((event, index) => {
-          const actualDate = `${new Date().getDate()}/${
-            new Date().getMonth() + 1
-          }/${new Date().getFullYear()}`;
-          const date = {
-            start: `${parseInt(event.startIn.split("/")[0])}/${event.startIn
-              .split("/")
-              .slice(1)
-              .join("/")}`,
-            end: `${parseInt(event.endIn.split("/")[0])}/${event.endIn
-              .split("/")
-              .slice(1)
-              .join("/")}`,
-          };
-          if (actualDate === date.start) {
-            emitter.emit("eventStarted", { name: event.name, index });
-          }
-          if (actualDate === date.end) {
-            emitter.emit("eventEnded", { name: event.name, index });
-          }
-        });
-      },
-      timezoneConfig
-    );
-    return emitter as Emitter;
+      if (
+        this.options.events.find(
+          (x) =>
+            !/^(\d{2})\/(\d{2})\/(\d{4})(:)?/g.test(x.startIn) ||
+            !/^(\d{2})\/(\d{2})\/(\d{4})(:)?/g.test(x.endIn)
+        )
+      ) {
+        reject(
+          new RegexValidatorError(
+            `Invalid pattern \nLocale: Events > ${
+              this.options.events.find(
+                (x) => !/^(\d{2})\/(\d{2})\/(\d{4})(:)?/g.test(x.startIn)
+              )
+                ? "Start In"
+                : "End In"
+            }`
+          )
+        );
+      }
+      const emitter: Emitter = new EventEmitter();
+      if (this.options.timezone) {
+        const timezones = (
+          await axios.get(
+            "https://raw.githubusercontent.com/dmfilipenko/timezones.json/master/timezones.json"
+          )
+        ).data as any[];
+        if (
+          !timezones
+            .map((x) => x.utc)
+            .reduce((acc, curr) => acc.concat(curr), [])
+            .find((x: string) => x === this.options.timezone)
+        ) {
+          reject(
+            new TimezoneError(
+              "Timezone is invalid.",
+              this.options.timezone,
+              timezones
+                .map((x) => x.utc)
+                .reduce((acc, curr) => acc.concat(curr), [])
+            )
+          );
+        }
+      }
+      let timezoneConfig = {
+        schedule: true,
+        timezone: this.options.timezone || process.env.TZ,
+      };
+      cron.schedule(
+        this.options.pattern ?? "0 0 * * *",
+        () => {
+          this.options.events.forEach((event, index) => {
+            const actualDate = `${new Date().getDate()}/${
+              new Date().getMonth() + 1
+            }/${new Date().getFullYear()}`;
+            const date = {
+              start: `${parseInt(event.startIn.split("/")[0])}/${
+                event.startIn.split("/").slice(1).join("/").split(":")[0]
+              }`,
+              end: `${parseInt(event.endIn.split("/")[0])}/${
+                event.endIn.split("/").slice(1).join("/").split(":")[0]
+              }`,
+              hourStart: event.startIn.split(":").slice(1).join(":"),
+              hourEnd: event.endIn.split(":").slice(1).join(":"),
+            };
+            if (actualDate === date.start) {
+              if (!date.hourStart) {
+                emitter.emit("eventStarted", { name: event.name, index });
+              } else {
+                const hour = `${new Date().getHours()}:${new Date().getMinutes()}`;
+                if (hour === date.hourStart) {
+                  emitter.emit("eventStarted", { name: event.name, index });
+                }
+              }
+            }
+            if (actualDate === date.end) {
+              if (!date.hourEnd) {
+                emitter.emit("eventEnded", { name: event.name, index });
+              } else {
+                const hour = `${new Date().getHours()}:${new Date().getMinutes()}`;
+                if (hour === date.hourEnd) {
+                  emitter.emit("eventEnded", { name: event.name, index });
+                }
+              }
+            }
+          });
+        },
+        timezoneConfig
+      );
+      return resolve(emitter);
+    });
   }
 }
