@@ -24,6 +24,8 @@ const { EventCron } = require('eventcron');
 (async () => {
     const eventStarter = new EventCron({events: [{name: "event1", startIn: "02/11/2022:3:05", endIn: "02/11/2022:3:06"}]})
     const initEvent = await eventStarter.start()
+    initEvent.on("eventStarted", console.log)
+    initEvent.on("eventEnded", console.log)
 })
 ```
 # EventCron Class Params

@@ -1,6 +1,6 @@
 {
-  "name": "EventCron",
-  "version": "1.0.0",
+  "name": "eventcron",
+  "version": "1.0.1",
   "description": "An event package using node-cron.",
   "main": "lib/index.js",
   "scripts": {
@@ -24,6 +24,7 @@
   "dependencies": {
     "axios": "^1.1.3",
     "chalk": "4.1.2",
+    "eventcron": "^1.0.0",
     "node-cron": "^3.0.2"
   },
   "repository": {
@@ -32,5 +33,10 @@
   },
   "bugs": {
     "url": "https://github.com/LMS5413/EventCron/issues"
+  },
+  "types": "./lib/index.d.ts",
+  "homepage": "https://github.com/LMS5413/EventCron#readme",
+  "directories": {
+    "lib": "lib"
   }
 }
