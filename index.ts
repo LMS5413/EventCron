@@ -21,15 +21,15 @@ export class EventCron {
       if (
         this.options.events.find(
           (x) =>
-            !/^(\d{2})\/(\d{2})\/(\d{4})(:)?/g.test(x.startIn) ||
-            !/^(\d{2})\/(\d{2})\/(\d{4})(:)?/g.test(x.endIn)
+            !/^(\d{2})\/(\d{2})(:)?/g.test(x.startIn) ||
+            !/^(\d{2})\/(\d{2})(:)?/g.test(x.endIn)
         )
       ) {
         reject(
           new RegexValidatorError(
             `Invalid pattern \nLocale: Events > ${
               this.options.events.find(
-                (x) => !/^(\d{2})\/(\d{2})\/(\d{4})(:)?/g.test(x.startIn)
+                (x) => !/^(\d{2})\/(\d{2})(:)?/g.test(x.startIn)
               )
                 ? "Start In"
                 : "End In"
