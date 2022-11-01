@@ -20,9 +20,9 @@ yarn add eventcron
 # USAGE
 
 ```js
-const eventcron = require('eventcron');
+const { EventCron } = require('eventcron');
 
-(new cron.EventCron({events: [{endIn: "01/11/2022", name: "test", startIn: "31/10/2022"}], timezone: "America/SaoPau"})).start().then(res => {
+(new EventCron({events: [{endIn: "01/11/2022", name: "test", startIn: "31/10/2022"}], timezone: "America/SaoPau"})).start().then(res => {
     res.on("eventEnded", (event) => {
         console.log(`Event ${event.name} is ended with index ${events.index}`)
     })
