@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "latest": "tsc && npm publish",
-    "build": "tsc"
+    "build": "tsc",
+    "dev": "tsc && node index.js"
   },
   "author": "LMS5413",
   "license": "MIT",
