@@ -1,6 +1,6 @@
 {
   "name": "eventcron",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "An event package using node-cron.",
   "main": "lib/index.js",
   "scripts": {
